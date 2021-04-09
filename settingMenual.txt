@@ -1,0 +1,16 @@
+## 봇 생성 후 봇 등록
+https://discordapp.com/oauth2/authorize?client_id=당신봇의ClientID&scope=bot
+
+## 깃&헤로쿠 등록
+#헤로쿠 사이트 setting -> config Vars
+BOT_TOKEN : 봇토큰값(5단계에서 저장한값)
+GIT_REPO_RESTART : 첫 번째 생성한 repository (ex. rkskekfkfe/repository1)
+GIT_REPO : 두 번째 생성한 repository (ex. rkskekfkfe/repository2)
+GIT_TOKEN : github 토큰값(13단계에서 저장한값)
+
+#헤로쿠 사이트 setting -> buildpacks
+heroku/python
+https://github.com/heroku/heroku-buildpack-apt.git
+https://github.com/heroku/heroku-buildpack-apt
+https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git
+https://github.com/xrisk/heroku-opus.git
