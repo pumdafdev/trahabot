@@ -548,35 +548,37 @@ init()
 
 channel = ''
 
-#mp3 파일 생성함수(gTTS 이용, 남성목소리)
-async def MakeSound(saveSTR, filename):
-	if aws_key != "" and aws_secret_key != "":
-		polly = boto3.client("polly", aws_access_key_id = aws_key, aws_secret_access_key = aws_secret_key, region_name = "eu-west-1")
-
-		s = '<speak><prosody rate="' + str(95) + '%">' +  saveSTR + '</prosody></speak>'
-
-		response = polly.synthesize_speech(
-			TextType = "ssml",
-			Text=s,
-			OutputFormat="mp3",
-			VoiceId="Seoyeon")
-
-		stream = response.get("AudioStream")
-
-		with open(f"./{filename}.mp3", "wb") as mp3file:
-			data = stream.read()
-			mp3file.write(data)
-	else:	
+#mp3 파일 생성함수
+async def MakeSound(Nid, Npw, saveSTR, filename):
+	'''
+	tts = gTTS(saveSTR, lang = 'ko')
+	tts.save('./' + filename + '.wav')
+	'''
+	'''
+	try:
+		encText = urllib.parse.quote(saveSTR)
+		#print(encText)
+		urllib.request.urlretrieve("https://clova.ai/proxy/voice/api/tts?text=" + encText + "%0A&voicefont=1&format=wav",filename + '.wav')
+	except Exception as e:
+		print (e)
 		tts = gTTS(saveSTR, lang = 'ko')
-		tts.save(f"./{filename}.wav")
-
+		tts.save('./' + filename + '.wav')
+		pass
+	'''
+	if Nid != "" and Npw != "":
+		s = naver_session(Nid, Npw)
+		encText = urllib.parse.quote(saveSTR)
+		pp = s.get("https://clovadubbing.naver.com/project/voicefont/" + basicSetting[20] + "/preview?text="+ encText)
+		result = pp.content
+		with open('./' + filename + '.wav', 'wb') as f:
+			f.write(result)
+	else:
+		tts = gTTS(saveSTR, lang = 'ko')
+		tts.save('./' + filename + '.wav')
+		
 #mp3 파일 재생함수	
 async def PlaySound(voiceclient, filename):
-	if basicSetting[21] != "1":
-		return
-        
-	# source = discord.FFmpegPCMAudio(filename)
-	source = discord.FFmpegOpusAudio(filename)
+	source = discord.FFmpegPCMAudio(filename)
 	try:
 		voiceclient.play(source)
 	except discord.errors.ClientException:
@@ -585,7 +587,7 @@ async def PlaySound(voiceclient, filename):
 	while voiceclient.is_playing():
 		await asyncio.sleep(1)
 	voiceclient.stop()
-	# source.cleanup()
+	source.cleanup()
 	return
 
 #my_bot.db 저장하기
