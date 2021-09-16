@@ -89,8 +89,6 @@ access_token = os.environ["BOT_TOKEN"]
 git_access_token = os.environ["GIT_TOKEN"]			
 git_access_repo = os.environ["GIT_REPO"]			
 git_access_repo_restart = os.environ["GIT_REPO_RESTART"]
-naver_ID = 	os.environ["NAVER_ID"]	
-naver_PW =  os.environ["NAVER_PW"]
 
 try:	
 	aws_key = os.environ["AWS_KEY"]			
@@ -552,76 +550,12 @@ init()
 channel = ''
 
 #####음성파일 생성을 위한 로그인함수들...
-def encrypt(key_str, uid, upw):
-	def naver_style_join(l):
-		return ''.join([chr(len(s)) + s for s in l])
-	
-	sessionkey, keyname, e_str, n_str = key_str.split(',')
-	e, n = int(e_str, 16), int(n_str, 16)
-	
-	message = naver_style_join([sessionkey, uid, upw]).encode()
-	
-	pubkey = rsa.PublicKey(e, n)
-	encrypted = rsa.encrypt(message, pubkey)
-	
-	return keyname, encrypted.hex()
-
-def encrypt_account(uid, upw):
-	key_str = requests.get('https://nid.naver.com/login/ext/keys.nhn').content.decode("utf-8")
-
-	return encrypt(key_str, uid, upw)
-
-def naver_session(nid, npw):
-	encnm, encpw = encrypt_account(nid, npw)
-
-	s = requests.Session()
-
-	retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
-
-	s.mount('https://', HTTPAdapter(max_retries=retries))
-	
-	request_headers = { 'User-agent': 'Mozilla/5.0' }
-
-	bvsd_uuid = uuid.uuid4()
-	encData = '{"a":"%s-4","b":"1.3.4","d":[{"i":"id","b":{"a":["0,%s"]},"d":"%s","e":false,"f":false},{"i":"%s","e":true,"f":false}],"h":"1f","i":{"a":"chorme/83.0"}}' % (bvsd_uuid, nid, nid, npw)
-	bvsd = '{"uuid":"%s","encData":"%s"}' % (bvsd_uuid, lzstring.LZString.compressToEncodedURIComponent(encData))
-
-	resp = s.post('https://nid.naver.com/nidlogin.login', data={ 'svctype': '0', 'enctp': '1', 'encnm': encnm, 'enc_url': 'http0X0.0000000000001P-10220.0000000.000000www.naver.com', 'url': 'www.naver.com', 'smart_level': '1', 'encpw': encpw, 'bvsd': bvsd }, headers=request_headers)
-	finalize_url = re.search(r'location\.replace\("([^"]+)"\)', resp.content.decode("utf-8")).group(1)
-	
-	s.get(finalize_url)
-
-	return s
-
 #mp3 파일 생성함수
 async def MakeSound(Nid, Npw, saveSTR, filename):
 	
 	tts = gTTS(saveSTR, lang = 'ko')
 	tts.save('./' + filename + '.wav')
 	
-	'''
-	try:
-		encText = urllib.parse.quote(saveSTR)
-		#print(encText)
-		urllib.request.urlretrieve("https://clova.ai/proxy/voice/api/tts?text=" + encText + "%0A&voicefont=1&format=wav",filename + '.wav')
-	except Exception as e:
-		print (e)
-		tts = gTTS(saveSTR, lang = 'ko')
-		tts.save('./' + filename + '.wav')
-		pass
-	...
-	...
-	if Nid != "" and Npw != "":
-		s = naver_session(Nid, Npw)
-		encText = urllib.parse.quote(saveSTR)
-		pp = s.get("https://clovadubbing.naver.com/project/voicefont/" + basicSetting[20] + "/preview?text="+ encText)
-		result = pp.content
-		with open('./' + filename + '.wav', 'wb') as f:
-			f.write(result)
-	else:
-		tts = gTTS(saveSTR, lang = 'ko')
-		tts.save('./' + filename + '.wav')
-	...	
 #mp3 파일 재생함수	
 async def PlaySound(voiceclient, filename):
 	source = discord.FFmpegPCMAudio(filename)
