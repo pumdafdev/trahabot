@@ -595,10 +595,10 @@ def naver_session(nid, npw):
 
 #mp3 파일 생성함수
 async def MakeSound(Nid, Npw, saveSTR, filename):
-	'''
+	
 	tts = gTTS(saveSTR, lang = 'ko')
 	tts.save('./' + filename + '.wav')
-	'''
+	
 	'''
 	try:
 		encText = urllib.parse.quote(saveSTR)
@@ -609,7 +609,8 @@ async def MakeSound(Nid, Npw, saveSTR, filename):
 		tts = gTTS(saveSTR, lang = 'ko')
 		tts.save('./' + filename + '.wav')
 		pass
-	'''
+	...
+	...
 	if Nid != "" and Npw != "":
 		s = naver_session(Nid, Npw)
 		encText = urllib.parse.quote(saveSTR)
@@ -620,7 +621,7 @@ async def MakeSound(Nid, Npw, saveSTR, filename):
 	else:
 		tts = gTTS(saveSTR, lang = 'ko')
 		tts.save('./' + filename + '.wav')
-		
+	...	
 #mp3 파일 재생함수	
 async def PlaySound(voiceclient, filename):
 	source = discord.FFmpegPCMAudio(filename)
